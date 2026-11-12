@@ -1,0 +1,51 @@
+@page "/student-applications/create"
+@inject StudentApplicationService ApplicationService
+
+<PageTitle>Create Student Application</PageTitle>
+
+<h1>Create Student Application</h1>
+
+@if (success)
+{
+    <div class="alert alert-success">Application submitted successfully!</div>
+}
+
+@if (hasError)
+{
+    <div class="alert alert-danger">Something went wrong. The application was not saved.</div>
+}
+
+<StudentApplicationForm Application="newApplication"
+                        ButtonText="Submit Application"
+                        IsSaving="isSaving"
+                        OnSubmit="SaveApplication" />
+
+@code {
+    private StudentApplication newApplication = new() { ApplicationDate = DateTime.Today };
+    private bool isSaving = false;
+    private bool success = false;
+    private bool hasError = false;
+
+    private async Task SaveApplication(StudentApplication application)
+    {
+        isSaving = true;
+        success = false;
+        hasError = false;
+
+        try
+        {
+            success = await ApplicationService.CreateApplication(application);
+            hasError = !success;
+
+            // clear the form after saving
+            if (success)
+                newApplication = new() { ApplicationDate = DateTime.Today };
+        }
+        catch
+        {
+            hasError = true;
+        }
+
+        isSaving = false;
+    }
+}
