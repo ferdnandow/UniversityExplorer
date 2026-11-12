@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "MhgrYPVhFjI=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\ferna\\Documents\\UniversityExplorer\\UniversityExplorer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ferna\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\11.0.0-rc.2.26504.105\\microsoft.aspnetcore.app.internal.assets.11.0.0-rc.2.26504.105.nupkg.sha512"
+  ],
+  "logs": []
+}
