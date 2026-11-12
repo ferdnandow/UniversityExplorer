@@ -1,0 +1,115 @@
+@page "/university-explorer"
+@inject CountryService CountryService
+@inject UniversityService UniversityService
+
+<PageTitle>University Explorer</PageTitle>
+
+<h1>University Explorer</h1>
+
+@if (loadingCountries)
+{
+    <p>Loading countries...</p>
+}
+else if (countryError)
+{
+    <div class="alert alert-danger">Unable to load countries. Try again later.</div>
+}
+else
+{
+    <CountrySelector Countries="countries" OnCountrySelected="SelectCountry" />
+}
+
+@if (selectedCountry != null)
+{
+    <CountryDetails Country="selectedCountry" />
+}
+
+@if (loadingUniversities)
+{
+    <p>Loading universities...</p>
+}
+else if (universityError)
+{
+    <div class="alert alert-danger">Unable to load universities.</div>
+}
+else if (selectedCountry != null)
+{
+    <input class="form-control mb-3"
+           @bind="SearchText"
+           @bind:event="oninput"
+           placeholder="Search university..." />
+
+    <div class="row">
+        <div class="col-md-6">
+            <p>@FilteredUniversities.Count() universities found</p>
+            @foreach (var uni in FilteredUniversities)
+            {
+                <UniversityCard University="uni" OnSelect="SelectUniversity" />
+            }
+        </div>
+        <div class="col-md-6">
+            @if (selectedUniversity != null)
+            {
+                <UniversityDetails University="selectedUniversity" />
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<Country> countries = new();
+    private List<University> universities = new();
+    private Country? selectedCountry;
+    private University? selectedUniversity;
+    private string SearchText = "";
+
+    private bool loadingCountries = true;
+    private bool countryError = false;
+    private bool loadingUniversities = false;
+    private bool universityError = false;
+
+    // filter while the user types
+    private IEnumerable<University> FilteredUniversities =>
+        universities.Where(u => u.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            countries = await CountryService.GetCountries();
+        }
+        catch
+        {
+            countryError = true;
+        }
+        loadingCountries = false;
+    }
+
+    private async Task SelectCountry(string countryName)
+    {
+        selectedCountry = countries.FirstOrDefault(c => c.Name == countryName);
+        selectedUniversity = null;
+        SearchText = "";
+        universities.Clear();
+
+        if (selectedCountry == null) return;
+
+        loadingUniversities = true;
+        universityError = false;
+        try
+        {
+            universities = await UniversityService.GetUniversities(countryName);
+
+        }
+        catch
+        {
+            universityError = true;
+        }
+        loadingUniversities = false;
+    }
+
+    private void SelectUniversity(University uni)
+    {
+        selectedUniversity = uni;
+    }
+}
